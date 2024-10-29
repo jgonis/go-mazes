@@ -47,14 +47,54 @@ func (g Grid) TotalCells() uint {
 	return uint(g.Width * g.Height)
 }
 
+func (g Grid) String() string {
+	mazeString := ""
+	for rowIndex := range g.Height {
+		row := g.Cells[int(rowIndex)]
+		//draw top of the row
+		for _, cell := range row {
+			if cell.North == nil {
+				mazeString += "+---"
+			} else if cell.North != nil {
+				if cell.IsCellLinked(*cell.North) {
+					mazeString += "+   "
+				} else {
+					mazeString += "+---"
+				}
+			}
+		}
+		mazeString += "+\n"
+		//draw walls of the row
+		for _, cell := range row {
+			if cell.West == nil {
+				mazeString += "|   "
+			} else if cell.West != nil {
+				if cell.IsCellLinked(*cell.West) {
+					mazeString += "    "
+				} else {
+					mazeString += "|   "
+				}
+			}
+		}
+		mazeString += "|\n"
+	}
+	//draw bottom of the grid
+	for range g.Width {
+		mazeString += "+---"
+	}
+	//append final + to the string
+	mazeString += "+"
+	return mazeString
+}
+
 func initializeGridCells(width, height uint, grid *Grid, cells map[int][]Cell) map[int][]Cell {
 	for row := range height {
 		for column := range width {
-			cell := grid.CellAt(image.Point{int(row), int(column)})
-			cell.North = grid.CellAt(image.Point{int(row) - 1, int(column)})
-			cell.South = grid.CellAt(image.Point{int(row) + 1, int(column)})
-			cell.East = grid.CellAt(image.Point{int(row), int(column) + 1})
-			cell.West = grid.CellAt(image.Point{int(row), int(column) - 1})
+			cell := grid.CellAt(image.Point{int(column), int(row)})
+			cell.North = grid.CellAt(image.Point{int(column), int(row) - 1})
+			cell.South = grid.CellAt(image.Point{int(column), int(row) + 1})
+			cell.East = grid.CellAt(image.Point{int(column) + 1, int(row)})
+			cell.West = grid.CellAt(image.Point{int(column) - 1, int(row)})
 		}
 	}
 	return cells
