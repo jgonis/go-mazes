@@ -1,4 +1,4 @@
-package grid
+package mazegrid
 
 import "image"
 
@@ -20,17 +20,17 @@ func NewCell(x, y uint, grid *Grid) Cell {
 	}
 }
 
-func (c *Cell) Link(cell Cell, bidirectional bool) {
+func (c *Cell) Link(cell *Cell, bidirectional bool) {
 	c.linkedCells[cell.coordinates] = true
 	if bidirectional {
-		cell.Link(*c, false)
+		cell.Link(c, false)
 	}
 }
 
-func (c *Cell) Unlink(cell Cell, bidirectional bool) {
+func (c *Cell) Unlink(cell *Cell, bidirectional bool) {
 	c.linkedCells[cell.coordinates] = false
 	if bidirectional {
-		cell.Unlink(*c, false)
+		cell.Unlink(c, false)
 	}
 }
 

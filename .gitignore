@@ -7,6 +7,8 @@
 *.dll
 *.so
 *.dylib
+go-mazes
+*.png
 
 # Test binary, built with `go test -c`
 *.test

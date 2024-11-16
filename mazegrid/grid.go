@@ -1,4 +1,4 @@
-package grid
+package mazegrid
 
 import (
 	"image"

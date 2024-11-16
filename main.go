@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/jgonis/go-mazes/maze_algorithms"
+	"github.com/jgonis/go-mazes/maze_drawing"
+	"github.com/jgonis/go-mazes/mazegrid"
+)
 
 func main() {
-	fmt.Println("Hello, world!")
+	grid := mazegrid.NewGrid(5, 5)
+	newGrid := maze_algorithms.GenerateBinaryTreeMaze(&grid)
+	fmt.Println(newGrid.String())
+	maze_drawing.DrawMaze(newGrid)
 }
