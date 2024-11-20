@@ -1,6 +1,7 @@
 package maze_drawing
 
 import (
+	"fmt"
 	"image"
 
 	"github.com/fogleman/gg"
@@ -9,8 +10,8 @@ import (
 
 const (
 	dpi             = 300
-	letterHeight    = 33
-	letterWidth     = 23
+	letterHeight    = 11
+	letterWidth     = 8.5
 	letterHeightPix = letterHeight * dpi
 	letterWidthPix  = letterWidth * dpi
 	letterBorderPix = 0.5 * dpi
@@ -26,23 +27,24 @@ const (
 func DrawMaze(grid *mazegrid.Grid) string {
 	var orientation PaperOrientation
 	var cellSize uint
+	fmt.Printf("grid width: %d\n", grid.Width)
+	fmt.Printf("grid height: %d\n", grid.Height)
 	if grid.Width >= grid.Height {
 		orientation = Landscape
-		cellSize = (letterWidthPix - (2 * letterBorderPix)) / grid.Width
 	} else {
 		orientation = Portrait
-		cellSize = (letterHeightPix - (2 * letterBorderPix)) / grid.Height
 	}
+	cellSize = calculateCellSize(grid.Width, grid.Height)
 	halfCellSize := cellSize / 2
 	drawingContext := createDrawingContext(orientation)
 	drawingContext.SetRGB(0, 0, 0)
-	drawingContext.SetLineWidth(1)
+	drawingContext.SetLineWidth(8)
 	// iterate across each cell in the grid
 	for row := range grid.Height {
 		for column := range grid.Width {
 			cell := grid.CellAt(image.Point{int(column), int(row)})
 			// calculate a new center point based on the offset of the cell in the grid
-			cellCenterX, cellCenterY := calculateCenterPoint(row, column, cellSize)
+			cellCenterX, cellCenterY := calculateCenterPoint(grid.Width, grid.Height, row, column, cellSize)
 
 			// for each of the cell's neighbors
 			// if the neighbor is nil or the cell is not linked to it, draw a line
@@ -81,11 +83,63 @@ func DrawMaze(grid *mazegrid.Grid) string {
 	return "Drawing saved to test.png"
 }
 
-func calculateCenterPoint(cellRow, cellColumn, cellSize uint) (uint, uint) {
-	cellCenterX := letterBorderPix + (cellSize * cellColumn) + (cellSize / 2)
-	cellCenterY := letterBorderPix + (cellSize * cellRow) + (cellSize / 2)
+func calculateCellSize(gridWidth, gridHeight uint) uint {
+	var potentialCellSize1, potentialCellSize2, pageWidth, pageHeight uint
+	if gridWidth >= gridHeight {
+		//Landscape mode
+		pageWidth = uint(letterHeightPix)
+		pageHeight = uint(letterWidthPix)
+		potentialCellSize1 = (pageWidth - (2 * letterBorderPix)) / gridWidth
+		potentialCellSize2 = (pageHeight - (2 * letterBorderPix)) / gridHeight
+	} else {
+		pageWidth = uint(letterHeightPix)
+		pageHeight = uint(letterWidthPix)
+		potentialCellSize1 = (pageWidth - (2 * letterBorderPix)) / gridWidth
+		potentialCellSize2 = (pageHeight - (2 * letterBorderPix)) / gridHeight
+	}
+
+	if potentialCellSize1*gridHeight > pageHeight || potentialCellSize1*gridWidth > pageWidth {
+
+		if potentialCellSize2*gridHeight > pageHeight || potentialCellSize2*gridWidth > pageWidth {
+			panic("can't figure out cell size!")
+		} else {
+			return potentialCellSize2
+		}
+	} else {
+		return potentialCellSize1
+	}
+}
+
+func calculateCenterPoint(gridWidth, gridHeight, cellRow, cellColumn, cellSize uint) (uint, uint) {
+	cellCenterX := calculateLeftBorder(gridWidth, gridHeight, cellSize) + (cellSize * cellColumn) + (cellSize / 2)
+	cellCenterY := calculateTopBorder(gridWidth, gridHeight, cellSize) + (cellSize * cellRow) + (cellSize / 2)
 
 	return cellCenterX, cellCenterY
+}
+
+func calculateLeftBorder(gridWidth, gridHeight, cellSize uint) uint {
+	// taller than we are wide
+	var pageWidth uint
+	if gridWidth >= gridHeight {
+		pageWidth = letterHeightPix
+	} else {
+		pageWidth = letterWidthPix
+	}
+	mazeWidth := cellSize * gridWidth
+	pageCenterX := uint(pageWidth / 2)
+	return pageCenterX - (mazeWidth / 2)
+}
+
+func calculateTopBorder(gridWidth, gridHeight, cellSize uint) uint {
+	var pageHeight uint
+	if gridWidth >= gridHeight {
+		pageHeight = letterWidthPix
+	} else {
+		pageHeight = letterHeightPix
+	}
+	mazeHeight := cellSize * gridHeight
+	pageCenterY := uint(pageHeight / 2)
+	return pageCenterY - (mazeHeight / 2)
 }
 
 func createDrawingContext(orientation PaperOrientation) *gg.Context {
