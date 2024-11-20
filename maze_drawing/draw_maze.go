@@ -9,8 +9,8 @@ import (
 
 const (
 	dpi             = 300
-	letterHeight    = 11
-	letterWidth     = 8.5
+	letterHeight    = 33
+	letterWidth     = 23
 	letterHeightPix = letterHeight * dpi
 	letterWidthPix  = letterWidth * dpi
 	letterBorderPix = 0.5 * dpi
@@ -33,9 +33,10 @@ func DrawMaze(grid *mazegrid.Grid) string {
 		orientation = Portrait
 		cellSize = (letterHeightPix - (2 * letterBorderPix)) / grid.Height
 	}
+	halfCellSize := cellSize / 2
 	drawingContext := createDrawingContext(orientation)
 	drawingContext.SetRGB(0, 0, 0)
-	drawingContext.SetLineWidth(8)
+	drawingContext.SetLineWidth(1)
 	// iterate across each cell in the grid
 	for row := range grid.Height {
 		for column := range grid.Width {
@@ -46,31 +47,31 @@ func DrawMaze(grid *mazegrid.Grid) string {
 			// for each of the cell's neighbors
 			// if the neighbor is nil or the cell is not linked to it, draw a line
 			if cell.North == nil || !cell.IsCellLinked(*cell.North) {
-				x1 := float64(cellCenterX - (cellSize / 2))
-				y1 := float64(cellCenterY - (cellSize / 2))
-				x2 := float64(cellCenterX + (cellSize / 2))
-				y2 := float64(cellCenterY - (cellSize / 2))
+				x1 := float64(cellCenterX - halfCellSize)
+				y1 := float64(cellCenterY - halfCellSize)
+				x2 := float64(cellCenterX + halfCellSize)
+				y2 := float64(cellCenterY - halfCellSize)
 				drawingContext.DrawLine(x1, y1, x2, y2)
 			}
 			if cell.East == nil || !cell.IsCellLinked(*cell.East) {
-				x1 := float64(cellCenterX + (cellSize / 2))
-				y1 := float64(cellCenterY - (cellSize / 2))
-				x2 := float64(cellCenterX + (cellSize / 2))
-				y2 := float64(cellCenterY + (cellSize / 2))
+				x1 := float64(cellCenterX + halfCellSize)
+				y1 := float64(cellCenterY - halfCellSize)
+				x2 := float64(cellCenterX + halfCellSize)
+				y2 := float64(cellCenterY + halfCellSize)
 				drawingContext.DrawLine(x1, y1, x2, y2)
 			}
 			if cell.South == nil || !cell.IsCellLinked(*cell.South) {
-				x1 := float64(cellCenterX - (cellSize / 2))
-				y1 := float64(cellCenterY + (cellSize / 2))
-				x2 := float64(cellCenterX + (cellSize / 2))
-				y2 := float64(cellCenterY + (cellSize / 2))
+				x1 := float64(cellCenterX - halfCellSize)
+				y1 := float64(cellCenterY + halfCellSize)
+				x2 := float64(cellCenterX + halfCellSize)
+				y2 := float64(cellCenterY + halfCellSize)
 				drawingContext.DrawLine(x1, y1, x2, y2)
 			}
 			if cell.West == nil || !cell.IsCellLinked(*cell.West) {
-				x1 := float64(cellCenterX - (cellSize / 2))
-				y1 := float64(cellCenterY - (cellSize / 2))
-				x2 := float64(cellCenterX - (cellSize / 2))
-				y2 := float64(cellCenterY + (cellSize / 2))
+				x1 := float64(cellCenterX - halfCellSize)
+				y1 := float64(cellCenterY - halfCellSize)
+				x2 := float64(cellCenterX - halfCellSize)
+				y2 := float64(cellCenterY + halfCellSize)
 				drawingContext.DrawLine(x1, y1, x2, y2)
 			}
 			drawingContext.Stroke()
@@ -81,8 +82,8 @@ func DrawMaze(grid *mazegrid.Grid) string {
 }
 
 func calculateCenterPoint(cellRow, cellColumn, cellSize uint) (uint, uint) {
-	cellCenterX := letterBorderPix + (cellSize * cellRow) + (cellSize / 2)
-	cellCenterY := letterBorderPix + (cellSize * cellColumn) + (cellSize / 2)
+	cellCenterX := letterBorderPix + (cellSize * cellColumn) + (cellSize / 2)
+	cellCenterY := letterBorderPix + (cellSize * cellRow) + (cellSize / 2)
 
 	return cellCenterX, cellCenterY
 }
