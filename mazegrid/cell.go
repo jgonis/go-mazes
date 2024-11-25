@@ -4,7 +4,9 @@ import "image"
 
 type Cell struct {
 	coordinates image.Point
-	linkedCells map[image.Point]bool
+	linkedCells map[*Cell]bool
+	IsStart     bool
+	IsEnd       bool
 	grid        *Grid
 	North       *Cell
 	South       *Cell
@@ -15,20 +17,20 @@ type Cell struct {
 func NewCell(x, y uint, grid *Grid) Cell {
 	return Cell{
 		coordinates: image.Point{int(x), int(y)},
-		linkedCells: make(map[image.Point]bool),
+		linkedCells: make(map[*Cell]bool),
 		grid:        grid,
 	}
 }
 
 func (c *Cell) Link(cell *Cell, bidirectional bool) {
-	c.linkedCells[cell.coordinates] = true
+	c.linkedCells[cell] = true
 	if bidirectional {
 		cell.Link(c, false)
 	}
 }
 
 func (c *Cell) Unlink(cell *Cell, bidirectional bool) {
-	c.linkedCells[cell.coordinates] = false
+	c.linkedCells[cell] = false
 	if bidirectional {
 		cell.Unlink(c, false)
 	}
@@ -36,14 +38,16 @@ func (c *Cell) Unlink(cell *Cell, bidirectional bool) {
 
 func (c Cell) GetLinkedCells() []*Cell {
 	var linkedCells []*Cell
-	for coords := range c.linkedCells {
-		linkedCells = append(linkedCells, c.grid.CellAt(coords))
+	for cell, present := range c.linkedCells {
+		if present {
+			linkedCells = append(linkedCells, cell)
+		}
 	}
 	return linkedCells
 }
 
-func (c Cell) IsCellLinked(cell Cell) bool {
-	_, present := c.linkedCells[cell.coordinates]
+func (c Cell) IsCellLinked(cell *Cell) bool {
+	_, present := c.linkedCells[cell]
 	return present
 }
 

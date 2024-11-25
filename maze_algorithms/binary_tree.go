@@ -8,7 +8,9 @@ import (
 	"github.com/jgonis/go-mazes/mazegrid"
 )
 
-func GenerateBinaryTreeMaze(grid *mazegrid.Grid) *mazegrid.Grid {
+type BinaryTree struct{}
+
+func (b BinaryTree) GenerateMaze(grid *mazegrid.Grid) *mazegrid.Grid {
 	for i := range grid.Height {
 		for j := range grid.Width {
 			cell := grid.CellAt(image.Point{int(j), int(i)})

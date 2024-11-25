@@ -56,7 +56,7 @@ func (g Grid) String() string {
 			if cell.North == nil {
 				mazeString += "+---"
 			} else if cell.North != nil {
-				if cell.IsCellLinked(*cell.North) {
+				if cell.IsCellLinked(cell.North) {
 					mazeString += "+   "
 				} else {
 					mazeString += "+---"
@@ -69,7 +69,7 @@ func (g Grid) String() string {
 			if cell.West == nil {
 				mazeString += "|   "
 			} else if cell.West != nil {
-				if cell.IsCellLinked(*cell.West) {
+				if cell.IsCellLinked(cell.West) {
 					mazeString += "    "
 				} else {
 					mazeString += "|   "
@@ -85,6 +85,14 @@ func (g Grid) String() string {
 	//append final + to the string
 	mazeString += "+"
 	return mazeString
+}
+
+func (g *Grid) CreateStartAndEnd() {
+	startCoord := rand.Intn(int(g.Height))
+	g.CellAt(image.Point{0, startCoord}).IsStart = true
+
+	endCoord := rand.Intn(int(g.Height))
+	g.CellAt(image.Point{int(g.Width - 1), endCoord}).IsEnd = true
 }
 
 func initializeGridCells(width, height uint, grid *Grid, cells map[int][]Cell) map[int][]Cell {
